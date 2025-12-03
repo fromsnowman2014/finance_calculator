@@ -1,158 +1,160 @@
-# Phase 2 기능 개선 PRD (Product Requirements Document)
+# Phase 2 Enhancement PRD (Product Requirements Document)
 
-## 프로젝트 개요
+## Project Overview
 
-**프로젝트명**: Finance Calculator - Phase 2 Enhancement
-**작성일**: 2024년 12월 3일
-**버전**: 2.0
-**담당자**: Development Team
-
----
-
-## 1. 목표 (Objectives)
-
-Finance Calculator를 글로벌 사용자를 위한 종합 재무 계산 플랫폼으로 확장하여 사용자 경험을 극대화하고 실질적인 재무 계획 도구로 발전시킨다.
-
-### 핵심 목표
-- 전 세계 170개 이상의 통화 지원으로 글로벌 시장 진출
-- 사용자가 실제 투자 결정을 내릴 수 있는 고급 재무 분석 기능 추가
-- 직관적이고 교육적인 사용자 경험 제공
+**Project Name**: Finance Calculator - Phase 2 Enhancement
+**Date**: December 3, 2024
+**Version**: 2.0
+**Owner**: Development Team
 
 ---
 
-## 2. 리서치 결과 요약
+## 1. Objectives
 
-### 2.1 업계 선도 기능 분석
+Transform Finance Calculator into a comprehensive global financial planning platform that maximizes user experience and serves as a practical financial planning tool.
 
-다음 플랫폼들의 베스트 프랙티스를 분석했습니다:
+### Core Goals
+- Support 170+ global currencies for international market expansion
+- Add advanced financial analysis features for real investment decisions
+- Provide intuitive and educational user experience
+- Design for multi-language expansion (English first, then others)
 
-**참고 자료**:
+---
+
+## 2. Research Summary
+
+### 2.1 Industry Leader Analysis
+
+Analyzed best practices from leading platforms:
+
+**References**:
 - [NerdWallet Compound Interest Calculator](https://www.nerdwallet.com/calculator/compound-interest-calculator)
 - [Bankrate Savings Calculator](https://www.bankrate.com/banking/savings/compound-savings-calculator/)
 - [MoneyGeek Best Compound Interest Calculator](https://www.moneygeek.com/compound-interest-calculator/)
 - [Top Financial Calculator Apps for 2024](https://gomyfinance.com/2025/11/24/top-financial-calculator-apps-for-2024/)
 
-### 2.2 핵심 발견사항
+### 2.2 Key Findings
 
-1. **다중 통화 지원 필수**: 프로페셔널 재무 도구는 35개 이상의 통화를 지원
-2. **시각화가 중요**: 사용자의 80%가 차트와 그래프를 통해 이해도 향상
-3. **비교 분석 기능**: "What-if" 시나리오 비교가 가장 많이 사용되는 기능
-4. **목표 기반 계획**: 구체적인 재무 목표(은퇴, 주택 구매 등) 설정 기능 선호
+1. **Multi-currency Essential**: Professional financial tools support 35+ currencies
+2. **Visualization Matters**: 80% of users prefer charts and graphs for understanding
+3. **Comparison Features**: "What-if" scenario comparison is the most used feature
+4. **Goal-based Planning**: Users prefer setting specific financial goals (retirement, home purchase, etc.)
 
 ---
 
-## 3. Phase 2 기능 명세
+## 3. Phase 2 Feature Specifications
 
-### 3.1 Priority 1 (Must Have) - 핵심 기능
+### 3.1 Priority 1 (Must Have) - Core Features
 
-#### 3.1.1 전세계 통화 지원 시스템 (Global Currency Support)
+#### 3.1.1 Global Currency Support System
 
-**현재 상태**: USD, KRW, JPY, EUR 4개 통화만 지원
+**Current State**: Only 4 currencies (USD, KRW, JPY, EUR)
 
-**개선 사항**:
+**Improvements**:
 
-**A. 170+ 통화 지원**
-- 주요 통화: USD, EUR, GBP, JPY, CNY, KRW, AUD, CAD, CHF, SGD 등
-- 신흥 시장: INR, BRL, MXN, ZAR, TRY 등
-- 암호화폐: BTC, ETH (선택적)
+**A. 170+ Currency Support**
+- Major currencies: USD, EUR, GBP, JPY, CNY, KRW, AUD, CAD, CHF, SGD, etc.
+- Emerging markets: INR, BRL, MXN, ZAR, TRY, etc.
+- Cryptocurrencies: BTC, ETH (optional)
 
-**B. 실시간 환율 API 통합**
+**B. Real-time Exchange Rate API Integration**
 
-추천 API 옵션:
-1. **ExchangeRate-API** (무료 플랜)
-   - 매월 1,500 요청 무료
-   - 99.99% 업타임
-   - [공식 사이트](https://www.exchangerate-api.com)
+Recommended API Options:
+1. **ExchangeRate-API** (Free Plan)
+   - 1,500 requests/month free
+   - 99.99% uptime
+   - [Official Site](https://www.exchangerate-api.com)
 
-2. **Fixer API** (백업)
-   - 매월 100 요청 무료
-   - 60초마다 업데이트
-   - [공식 사이트](https://fixer.io/)
+2. **Fixer API** (Backup)
+   - 100 requests/month free
+   - Updates every 60 seconds
+   - [Official Site](https://fixer.io/)
 
-**구현 상세**:
+**Implementation Details**:
 ```typescript
-// API Response 캐싱
-- localStorage에 24시간 캐싱
-- 사용자가 수동으로 "환율 업데이트" 버튼 클릭 가능
-- 백그라운드에서 자동 업데이트 (24시간마다)
+// API Response Caching
+- Cache in localStorage for 24 hours
+- Manual "Update Exchange Rate" button
+- Automatic background update (every 24 hours)
 
-// 환율 표시
-- "1 USD = 1,300 KRW (2024-12-03 기준)" 형태로 표시
-- 마지막 업데이트 시간 표시
+// Exchange Rate Display
+- Format: "1 USD = 1,300 KRW (as of 2024-12-03)"
+- Show last update timestamp
 ```
 
-**C. 통화 변환 기능**
-- 사용자가 선택한 기본 통화로 모든 결과 자동 변환
-- "다른 통화로 보기" 버튼으로 즉시 변환 가능
-- 과거 환율 적용 옵션 (historical exchange rates)
+**C. Currency Conversion Feature**
+- Auto-convert all results to user's base currency
+- "View in different currency" instant conversion
+- Historical exchange rate options
 
-**예상 작업 시간**: 2-3주
+**Estimated Timeline**: 2-3 weeks
 
 ---
 
-#### 3.1.2 복리 빈도 선택 (Compounding Frequency)
+#### 3.1.2 Compounding Frequency Selection
 
-**현재**: 월 복리만 가능
+**Current**: Monthly compounding only
 
-**추가 옵션**:
-- 일일 복리 (Daily)
-- 월 복리 (Monthly) - 현재
-- 분기 복리 (Quarterly)
-- 연 복리 (Annually)
-- 연속 복리 (Continuous)
+**Additional Options**:
+- Daily compounding
+- Monthly compounding (current)
+- Quarterly compounding
+- Annual compounding
+- Continuous compounding
 
-**수학적 구현**:
+**Mathematical Implementation**:
 ```
 A = P(1 + r/n)^(nt)
-- n = 복리 빈도 (1=연, 4=분기, 12=월, 365=일)
+- n = compounding frequency (1=annual, 4=quarterly, 12=monthly, 365=daily)
 ```
 
-**UI 위치**: Advanced Options 섹션에 드롭다운 추가
+**UI Location**: Dropdown in Advanced Options section
 
-**예상 작업 시간**: 1주
+**Estimated Timeline**: 1 week
 
 ---
 
-#### 3.1.3 세금 고려 기능 (Tax Consideration)
+#### 3.1.3 Tax Consideration Feature
 
-**필요성**: 실제 수익은 세금 후 금액이 중요
+**Rationale**: Real returns are post-tax amounts
 
-**기능**:
-- 자본 이득세율 입력 (0-50%)
-- 배당소득세율 입력 (0-50%)
-- 세전/세후 수익 비교 표시
-- 국가별 기본 세율 프리셋 제공
+**Features**:
+- Capital gains tax rate input (0-50%)
+- Dividend income tax rate input (0-50%)
+- Pre-tax vs post-tax return comparison
+- Country-specific tax rate presets
 
-**프리셋 예시**:
+**Preset Examples**:
 ```
-- 한국: 배당소득세 15.4%, 양도소득세 22%
-- 미국: 장기 자본이득세 0-20%
-- 일본: 양도소득세 20.315%
+- South Korea: Dividend 15.4%, Capital Gains 22%
+- United States: Long-term Capital Gains 0-20%
+- Japan: Capital Gains 20.315%
+- Singapore: 0% (tax-free)
 ```
 
-**예상 작업 시간**: 2주
+**Estimated Timeline**: 2 weeks
 
 ---
 
-### 3.2 Priority 2 (Should Have) - 고급 기능
+### 3.2 Priority 2 (Should Have) - Advanced Features
 
-#### 3.2.1 시나리오 비교 (Scenario Comparison)
+#### 3.2.1 Scenario Comparison
 
-**기능 설명**: 최대 3개의 시나리오를 동시에 비교
+**Description**: Compare up to 3 scenarios simultaneously
 
-**사용 사례**:
-- 시나리오 A: 월 50만원, 연 5% 수익률
-- 시나리오 B: 월 100만원, 연 3% 수익률
-- 시나리오 C: 월 70만원, 연 7% 수익률
+**Use Cases**:
+- Scenario A: $500/month, 5% annual return
+- Scenario B: $1,000/month, 3% annual return
+- Scenario C: $700/month, 7% annual return
 
-**UI 디자인**:
-- 탭 방식으로 시나리오 전환
-- 오버레이 차트로 3개 라인 동시 표시
-- 최종 금액 비교 테이블
+**UI Design**:
+- Tab-based scenario switching
+- Overlay chart showing 3 lines simultaneously
+- Final amount comparison table
 
-**기술 구현**:
+**Technical Implementation**:
 ```typescript
-// Zustand store에 scenarios 배열 추가
+// Add scenarios array to Zustand store
 interface ScenarioState {
   scenarios: CalculatorState[];
   activeScenarioId: string;
@@ -160,161 +162,164 @@ interface ScenarioState {
 }
 ```
 
-**예상 작업 시간**: 3주
+**Estimated Timeline**: 3 weeks
 
 ---
 
-#### 3.2.2 목표 기반 계산 (Goal-Based Planning)
+#### 3.2.2 Goal-Based Planning (Reverse Calculation)
 
-**역방향 계산 기능**:
+**Reverse Calculation Feature**:
 
-현재: 입력값 → 최종 금액
-추가: 목표 금액 → 필요한 월 납입액
+Current: Input values → Final amount
+Addition: Target amount → Required monthly contribution
 
-**사용 사례**:
+**Use Case**:
 ```
-"10년 후 1억원을 모으려면 매월 얼마를 저축해야 하나요?"
-→ 답: 연 5% 수익률 가정 시 월 648,000원
-```
-
-**구현 방식**:
-- "목표 금액 설정" 토글 버튼
-- 목표 금액 입력 시 월 납입액 자동 계산
-- "목표 달성 가능성" 인디케이터 (0-100%)
-
-**예상 작업 시간**: 2주
-
----
-
-#### 3.2.3 은퇴 계획 모드 (Retirement Planning Mode)
-
-**특화 기능**:
-- 은퇴 나이 입력 (현재 나이 → 은퇴 나이)
-- 은퇴 후 생활비 입력
-- 연금 인출 시뮬레이션
-- 자산 고갈 시점 예측
-
-**추가 입력 필드**:
-- 현재 나이
-- 은퇴 예정 나이
-- 은퇴 후 월 생활비
-- 예상 수명
-- 국민연금/사회보장 수령액
-
-**결과 표시**:
-- "자산이 XX세까지 유지됩니다"
-- 월별 인출 가능 금액
-- 안전 인출 비율 (Safe Withdrawal Rate)
-
-**예상 작업 시간**: 4주
-
----
-
-#### 3.2.4 인플레이션 상세 설정
-
-**현재**: 고정 2.5% 인플레이션
-
-**개선**:
-- 사용자 정의 인플레이션율 (0-20%)
-- 국가별 인플레이션 프리셋
-  - 미국: 2.5%
-  - 한국: 2.3%
-  - 일본: 0.5%
-  - 아르헨티나: 100%+
-- 인플레이션 조정 ON/OFF 토글
-- 명목 수익률 vs 실질 수익률 비교
-
-**예상 작업 시간**: 1주
-
----
-
-### 3.3 Priority 3 (Nice to Have) - 추가 기능
-
-#### 3.3.1 포트폴리오 믹스 (Portfolio Mix)
-
-**기능**: 여러 자산 배분 시뮬레이션
-
-**예시**:
-```
-- 주식 60%: 연 7% 수익률
-- 채권 30%: 연 3% 수익률
-- 현금 10%: 연 1% 수익률
-→ 가중 평균 수익률: 5.2%
+"How much should I save monthly to reach $100,000 in 10 years?"
+→ Answer: $648/month at 5% annual return
 ```
 
-**UI**: 슬라이더로 비율 조정, 파이 차트 표시
+**Implementation**:
+- "Set Target Amount" toggle button
+- Auto-calculate monthly contribution when target is set
+- "Goal Achievement Probability" indicator (0-100%)
 
-**예상 작업 시간**: 3주
-
----
-
-#### 3.3.2 PDF 리포트 생성
-
-**기능**:
-- 현재 계산 결과를 PDF로 다운로드
-- 차트, 테이블 포함
-- 로고와 날짜 포함
-- 인쇄 최적화
-
-**라이브러리**: react-pdf, jsPDF
-
-**예상 작업 시간**: 2주
+**Estimated Timeline**: 2 weeks
 
 ---
 
-#### 3.3.3 사용자 계정 및 저장
+#### 3.2.3 Retirement Planning Mode
 
-**기능**:
-- 로그인/회원가입 (OAuth - Google, GitHub)
-- 시나리오 저장 (클라우드)
-- 저장된 계산 불러오기
-- 계산 히스토리
+**Specialized Features**:
+- Retirement age input (current age → retirement age)
+- Post-retirement living expenses
+- Pension withdrawal simulation
+- Asset depletion prediction
 
-**기술 스택**: NextAuth.js, Vercel Postgres
+**Additional Input Fields**:
+- Current age
+- Target retirement age
+- Monthly living expenses after retirement
+- Life expectancy
+- Social security/pension income
 
-**예상 작업 시간**: 4주
+**Result Display**:
+- "Your assets will last until age XX"
+- Monthly withdrawal amount
+- Safe Withdrawal Rate (SWR)
 
----
-
-#### 3.3.4 모바일 앱 (PWA)
-
-**기능**:
-- Progressive Web App 변환
-- 오프라인 모드
-- 홈 화면에 추가
-- 푸시 알림 (월 납입 리마인더)
-
-**예상 작업 시간**: 2주
+**Estimated Timeline**: 4 weeks
 
 ---
 
-## 4. 기술 스택 및 아키텍처
+#### 3.2.4 Advanced Inflation Settings
 
-### 4.1 새로운 의존성
+**Current**: Fixed 2.5% inflation
+
+**Improvements**:
+- User-defined inflation rate (0-20%)
+- Country-specific inflation presets:
+  - United States: 2.5%
+  - South Korea: 2.3%
+  - Japan: 0.5%
+  - Argentina: 100%+
+- Inflation adjustment ON/OFF toggle
+- Nominal vs real return comparison
+
+**Estimated Timeline**: 1 week
+
+---
+
+### 3.3 Priority 3 (Nice to Have) - Additional Features
+
+#### 3.3.1 Portfolio Mix
+
+**Feature**: Simulate multiple asset allocations
+
+**Example**:
+```
+- Stocks 60%: 7% annual return
+- Bonds 30%: 3% annual return
+- Cash 10%: 1% annual return
+→ Weighted average return: 5.2%
+```
+
+**UI**: Slider for ratio adjustment, pie chart display
+
+**Estimated Timeline**: 3 weeks
+
+---
+
+#### 3.3.2 PDF Report Generation
+
+**Features**:
+- Download current calculation as PDF
+- Include charts and tables
+- Logo and date included
+- Print-optimized layout
+
+**Libraries**: react-pdf, jsPDF
+
+**Estimated Timeline**: 2 weeks
+
+---
+
+#### 3.3.3 User Accounts & Cloud Save
+
+**Features**:
+- Login/Signup (OAuth - Google, GitHub)
+- Save scenarios (cloud storage)
+- Load saved calculations
+- Calculation history
+
+**Tech Stack**: NextAuth.js, Vercel Postgres
+
+**Estimated Timeline**: 4 weeks
+
+---
+
+#### 3.3.4 Mobile App (PWA)
+
+**Features**:
+- Progressive Web App conversion
+- Offline mode
+- Add to home screen
+- Push notifications (monthly contribution reminders)
+
+**Estimated Timeline**: 2 weeks
+
+---
+
+## 4. Technology Stack & Architecture
+
+### 4.1 New Dependencies
 
 ```json
 {
   "dependencies": {
-    "axios": "^1.6.0",           // API 호출
-    "date-fns": "^3.0.0",        // 날짜 처리
-    "recharts": "^2.10.0",       // 이미 설치됨
-    "jspdf": "^2.5.0",           // PDF 생성
-    "html2canvas": "^1.4.0"      // 차트 캡처
+    "axios": "^1.6.0",           // API calls
+    "date-fns": "^3.0.0",        // Date handling
+    "recharts": "^2.10.0",       // Already installed
+    "jspdf": "^2.5.0",           // PDF generation
+    "html2canvas": "^1.4.0",     // Chart capture
+    "next-intl": "^3.0.0"        // i18n (for future expansion)
   }
 }
 ```
 
-### 4.2 API 구조
+### 4.2 API Structure
 
 ```
 /api/
   /currency/
-    /rates           GET  - 최신 환율 조회
-    /convert         POST - 통화 변환
-    /historical      GET  - 과거 환율
+    /rates           GET  - Fetch latest exchange rates
+    /convert         POST - Convert currency
+    /historical      GET  - Historical rates
+  /i18n/
+    /translations    GET  - Fetch translations (future)
 ```
 
-### 4.3 데이터 흐름
+### 4.3 Data Flow
 
 ```
 1. User Input → Zustand Store → Calculator Logic
@@ -324,163 +329,222 @@ interface ScenarioState {
 
 ---
 
-## 5. UI/UX 개선 사항
+## 5. Internationalization (i18n) Architecture
 
-### 5.1 다국어 지원 (i18n)
+### 5.1 Design for Multi-language Support
 
-**지원 언어**:
-- 한국어 (기본)
-- 영어
-- 일본어
-- 중국어 (간체)
+**Phase 2 Focus**: English only
+**Future Expansion**: Korean, Japanese, Chinese (Simplified)
 
-**라이브러리**: next-i18next
+**Directory Structure**:
+```
+/src/
+  /locales/
+    /en/
+      common.json
+      calculator.json
+      errors.json
+    /ko/          # Future
+    /ja/          # Future
+    /zh/          # Future
+  /i18n/
+    config.ts
+    index.ts
+```
 
-**예상 작업 시간**: 2주
+**Translation File Format** (`en/common.json`):
+```json
+{
+  "app": {
+    "title": "Compound Interest Calculator",
+    "description": "Visualize your financial future"
+  },
+  "calculator": {
+    "initialBalance": "Initial Balance",
+    "monthlyContribution": "Monthly Contribution",
+    "years": "Duration (Years)",
+    "interestRate": "Interest Rate"
+  },
+  "results": {
+    "finalBalance": "Final Balance",
+    "totalPrincipal": "Total Principal",
+    "totalInterest": "Total Interest"
+  }
+}
+```
+
+**Implementation Approach**:
+```typescript
+// Future-proof i18n hook
+export function useTranslation(namespace: string = 'common') {
+  // Currently returns English only
+  // Later will detect user locale
+  return {
+    t: (key: string) => translations[namespace][key],
+    locale: 'en',
+    setLocale: (locale: string) => { /* future */ }
+  };
+}
+```
+
+### 5.2 Content Strategy
+
+**Phase 2 (Current)**:
+- All UI text in English
+- Currency symbols localized (¥, $, €, ₩)
+- Number formatting based on currency locale
+
+**Future Phases**:
+- Add language selector in header
+- Automatic locale detection
+- RTL support for Arabic/Hebrew (if needed)
 
 ---
 
-### 5.2 반응형 디자인 최적화
+## 6. UI/UX Improvements
 
-**개선 사항**:
-- 태블릿 레이아웃 최적화
-- 모바일 차트 터치 제스처
-- 접이식 Advanced Options
-- Sticky 헤더
+### 6.1 Responsive Design Optimization
 
-**예상 작업 시간**: 1주
+**Improvements**:
+- Tablet layout optimization
+- Mobile chart touch gestures
+- Collapsible Advanced Options
+- Sticky header
 
----
-
-### 5.3 도움말 및 툴팁
-
-**추가**:
-- 모든 입력 필드에 툴팁
-- 용어 설명 모달 (복리, 연복리수익률 등)
-- 비디오 튜토리얼 링크
-- FAQ 섹션
-
-**예상 작업 시간**: 1주
+**Estimated Timeline**: 1 week
 
 ---
 
-## 6. 성능 최적화
+### 6.2 Help & Tooltips
 
-### 6.1 목표
-- First Contentful Paint: < 1.5초
-- Time to Interactive: < 3초
+**Additions**:
+- Tooltips on all input fields
+- Term explanation modals (compound interest, APY, etc.)
+- Video tutorial links
+- FAQ section
+
+**Estimated Timeline**: 1 week
+
+---
+
+## 7. Performance Optimization
+
+### 7.1 Targets
+- First Contentful Paint: < 1.5s
+- Time to Interactive: < 3s
 - Lighthouse Score: > 95
 
-### 6.2 최적화 방법
-- API 응답 캐싱 (SWR, React Query)
-- 이미지 최적화 (next/image)
+### 7.2 Optimization Methods
+- API response caching (SWR, React Query)
+- Image optimization (next/image)
 - Code splitting (dynamic import)
-- Web Workers for 복잡한 계산
+- Web Workers for complex calculations
 
 ---
 
-## 7. 테스트 전략
+## 8. Testing Strategy
 
-### 7.1 단위 테스트
-- 재무 계산 로직 (Jest)
-- 통화 변환 로직
-- 커버리지 목표: > 80%
+### 8.1 Unit Tests
+- Financial calculation logic (Jest)
+- Currency conversion logic
+- Coverage target: > 80%
 
-### 7.2 E2E 테스트
-- Playwright (이미 설정됨)
-- 주요 사용자 플로우 테스트
-- 다중 통화 시나리오 테스트
+### 8.2 E2E Tests
+- Playwright (already configured)
+- Test main user flows
+- Multi-currency scenarios
 
-### 7.3 성능 테스트
+### 8.3 Performance Tests
 - Lighthouse CI
-- 배포 전 자동 성능 체크
+- Automated performance checks before deployment
 
 ---
 
-## 8. 출시 계획
+## 9. Release Plan
 
-### Phase 2.1 (4주)
-- ✅ 전세계 통화 지원 (170+ currencies)
-- ✅ 실시간 환율 API 통합
-- ✅ 복리 빈도 선택
-- ✅ 세금 고려 기능
+### Phase 2.1 (4 weeks)
+- ✅ Global currency support (170+ currencies)
+- ✅ Real-time exchange rate API integration
+- ✅ Compounding frequency selection
+- ✅ Tax consideration features
 
-### Phase 2.2 (4주)
-- ✅ 시나리오 비교 (최대 3개)
-- ✅ 목표 기반 계산
-- ✅ 인플레이션 상세 설정
-- ✅ 다국어 지원 (한/영/일/중)
+### Phase 2.2 (4 weeks)
+- ✅ Scenario comparison (up to 3)
+- ✅ Goal-based calculation
+- ✅ Advanced inflation settings
+- ✅ UI/UX improvements
 
-### Phase 2.3 (4주)
-- ✅ 은퇴 계획 모드
-- ✅ 포트폴리오 믹스
-- ✅ PDF 리포트 생성
-- ✅ 모바일 PWA
+### Phase 2.3 (4 weeks)
+- ✅ Retirement planning mode
+- ✅ Portfolio mix
+- ✅ PDF report generation
+- ✅ Mobile PWA
 
 ### Phase 2.4 (Optional)
-- ✅ 사용자 계정 및 저장
-- ✅ 고급 차트 (Monte Carlo 시뮬레이션)
+- ✅ User accounts & cloud save
+- ✅ Advanced charts (Monte Carlo simulation)
+- ✅ Multi-language UI (Korean, Japanese, Chinese)
 
 ---
 
-## 9. 성공 지표 (KPIs)
+## 10. Success Metrics (KPIs)
 
-### 9.1 사용자 지표
-- 월간 활성 사용자 (MAU): 10,000+
-- 평균 세션 시간: > 5분
-- 재방문율: > 40%
+### 10.1 User Metrics
+- Monthly Active Users (MAU): 10,000+
+- Average session time: > 5 minutes
+- Return rate: > 40%
 
-### 9.2 기능 채택률
-- 통화 변환 기능 사용률: > 30%
-- 시나리오 비교 기능 사용률: > 20%
-- PDF 다운로드: > 15%
+### 10.2 Feature Adoption
+- Currency conversion usage: > 30%
+- Scenario comparison usage: > 20%
+- PDF downloads: > 15%
 
-### 9.3 기술 지표
-- 배포 빈도: 주 1회
-- 버그 해결 시간: < 48시간
-- 99.9% 업타임
+### 10.3 Technical Metrics
+- Deployment frequency: Once per week
+- Bug resolution time: < 48 hours
+- 99.9% uptime
 
 ---
 
-## 10. 리스크 및 대응 방안
+## 11. Risks & Mitigation
 
-### 10.1 API 의존성 리스크
-**리스크**: 환율 API 장애 시 서비스 중단
-**대응**:
-- 다중 API 백업 (ExchangeRate-API, Fixer)
-- 로컬 캐싱 (24시간)
-- 최근 환율 fallback
+### 11.1 API Dependency Risk
+**Risk**: Service disruption if exchange rate API fails
+**Mitigation**:
+- Multiple API backups (ExchangeRate-API, Fixer)
+- Local caching (24 hours)
+- Recent rate fallback
 
-### 10.2 성능 리스크
-**리스크**: 복잡한 계산으로 인한 UI 프리징
-**대응**:
-- Web Workers 활용
-- 계산 debouncing (500ms)
+### 11.2 Performance Risk
+**Risk**: UI freezing due to complex calculations
+**Mitigation**:
+- Web Workers utilization
+- Calculation debouncing (500ms)
 - Progressive enhancement
 
-### 10.3 다국어 유지보수
-**리스크**: 번역 누락 및 품질 저하
-**대응**:
-- 번역 키 자동 체크 (CI)
-- 네이티브 검수자 협력
-- Context 포함 번역 가이드
+### 11.3 i18n Maintenance Risk
+**Risk**: Translation gaps and quality degradation
+**Mitigation**:
+- Automated translation key checks (CI)
+- Native reviewer collaboration
+- Context-included translation guide
 
 ---
 
-## 11. 참고 자료
+## 12. References
 
-### 재무 계산 도구 분석
+### Financial Calculator Analysis
 - [NerdWallet Calculator](https://www.nerdwallet.com/calculator/compound-interest-calculator)
 - [Bankrate Savings Calculator](https://www.bankrate.com/banking/savings/compound-savings-calculator/)
 - [MoneyGeek Best Calculator](https://www.moneygeek.com/compound-interest-calculator/)
 - [Financial Calculator Apps 2024](https://gomyfinance.com/2025/11/24/top-financial-calculator-apps-for-2024/)
 
-### 은퇴 계획 도구
+### Retirement Planning Tools
 - [Fidelity Retirement Calculator](https://www.fidelity.com/calculators-tools/retirement-calculator/overview)
 - [NerdWallet Retirement Calculator](https://www.nerdwallet.com/calculator/retirement-calculator)
 - [Vanguard Retirement Calculator](https://investor.vanguard.com/tools-calculators/retirement-income-calculator)
 
-### 환율 API
+### Exchange Rate APIs
 - [ExchangeRate-API](https://www.exchangerate-api.com)
 - [Fixer API](https://fixer.io/)
 - [Top 10 Currency APIs 2024](https://currencyfreaks.com/blog/Top-10-Conversion-API-in-2024.html)
@@ -488,17 +552,18 @@ interface ScenarioState {
 
 ---
 
-## 12. 결론
+## 13. Conclusion
 
-Phase 2는 Finance Calculator를 단순한 복리 계산기에서 종합 재무 계획 플랫폼으로 발전시키는 중요한 단계입니다.
+Phase 2 transforms Finance Calculator from a simple compound interest calculator into a comprehensive financial planning platform.
 
-**핵심 차별화 요소**:
-1. 🌍 **진정한 글로벌 도구**: 170+ 통화 지원
-2. 🎯 **목표 중심 접근**: 역방향 계산으로 실행 가능한 계획 제공
-3. 📊 **비교 및 분석**: 다중 시나리오로 최적의 선택 지원
-4. 🎓 **교육적 가치**: 복잡한 재무 개념을 쉽게 이해
+**Key Differentiators**:
+1. 🌍 **Truly Global Tool**: 170+ currency support
+2. 🎯 **Goal-Centric Approach**: Reverse calculation for actionable plans
+3. 📊 **Compare & Analyze**: Multi-scenario support for optimal choices
+4. 🎓 **Educational Value**: Simplify complex financial concepts
+5. 🌐 **Scalable i18n**: Designed for future multi-language expansion
 
-**예상 총 개발 기간**: 12-16주
-**예상 리소스**: 2-3명 개발자
+**Total Estimated Development Time**: 12-16 weeks
+**Estimated Resources**: 2-3 developers
 
-이 PRD를 기반으로 단계적 개발을 진행하여 사용자에게 실질적인 가치를 제공하는 세계적 수준의 재무 도구를 완성할 수 있습니다.
+This PRD provides the foundation for phased development to deliver world-class financial planning tools with real value to users globally.

@@ -1,57 +1,166 @@
-# Phase 2 구현 계획 (Implementation Plan)
+# Phase 2 Implementation Plan
 
-## 개요
+## Overview
 
-이 문서는 Phase 2 PRD의 기능들을 실제로 구현하기 위한 상세한 기술 계획을 담고 있습니다.
+This document contains the detailed technical plan for implementing Phase 2 PRD features.
 
 ---
 
-## Sprint 1: 전세계 통화 지원 (Week 1-2)
+## Sprint 1: Global Currency Support (Week 1-2)
 
-### 목표
-- 170+ 통화 지원
-- 실시간 환율 API 통합
-- 환율 캐싱 시스템
+### Goals
+- Support 170+ currencies
+- Integrate real-time exchange rate API
+- Implement exchange rate caching system
 
-### 작업 항목
+### Tasks
 
-#### 1.1 통화 데이터 구조 설계
+#### 1.1 Currency Data Structure Design
 
-**파일**: `src/utils/currencies.ts`
+**File**: `src/utils/currencies.ts`
 
 ```typescript
 export interface Currency {
-  code: string;          // ISO 4217 코드 (USD, KRW 등)
-  name: string;          // 통화명
-  symbol: string;        // 심볼 ($, ₩ 등)
-  flag: string;          // 국기 이모지
-  locale: string;        // 숫자 포맷 로케일
-  decimals: number;      // 소수점 자릿수
+  code: string;          // ISO 4217 code (USD, KRW, etc.)
+  name: string;          // Currency name
+  nameLocal?: string;    // Local name (for future i18n)
+  symbol: string;        // Symbol ($, ₩, etc.)
+  flag: string;          // Flag emoji
+  locale: string;        // Number format locale
+  decimals: number;      // Decimal places
 }
 
 export const CURRENCIES: Currency[] = [
-  // 주요 통화
-  { code: 'USD', name: 'US Dollar', symbol: '$', flag: '🇺🇸', locale: 'en-US', decimals: 2 },
-  { code: 'EUR', name: 'Euro', symbol: '€', flag: '🇪🇺', locale: 'de-DE', decimals: 2 },
-  { code: 'GBP', name: 'British Pound', symbol: '£', flag: '🇬🇧', locale: 'en-GB', decimals: 2 },
-  { code: 'JPY', name: 'Japanese Yen', symbol: '¥', flag: '🇯🇵', locale: 'ja-JP', decimals: 0 },
-  { code: 'KRW', name: 'Korean Won', symbol: '₩', flag: '🇰🇷', locale: 'ko-KR', decimals: 0 },
-  { code: 'CNY', name: 'Chinese Yuan', symbol: '¥', flag: '🇨🇳', locale: 'zh-CN', decimals: 2 },
-  // ... 170+ 통화
+  // Major currencies
+  {
+    code: 'USD',
+    name: 'US Dollar',
+    nameLocal: 'US Dollar', // Will be 'US 달러' in Korean
+    symbol: '$',
+    flag: '🇺🇸',
+    locale: 'en-US',
+    decimals: 2
+  },
+  {
+    code: 'EUR',
+    name: 'Euro',
+    nameLocal: 'Euro',
+    symbol: '€',
+    flag: '🇪🇺',
+    locale: 'en-US', // Use en-US for consistency
+    decimals: 2
+  },
+  {
+    code: 'GBP',
+    name: 'British Pound',
+    nameLocal: 'British Pound',
+    symbol: '£',
+    flag: '🇬🇧',
+    locale: 'en-GB',
+    decimals: 2
+  },
+  {
+    code: 'JPY',
+    name: 'Japanese Yen',
+    nameLocal: 'Japanese Yen',
+    symbol: '¥',
+    flag: '🇯🇵',
+    locale: 'ja-JP',
+    decimals: 0
+  },
+  {
+    code: 'KRW',
+    name: 'South Korean Won',
+    nameLocal: 'South Korean Won',
+    symbol: '₩',
+    flag: '🇰🇷',
+    locale: 'ko-KR',
+    decimals: 0
+  },
+  {
+    code: 'CNY',
+    name: 'Chinese Yuan',
+    nameLocal: 'Chinese Yuan',
+    symbol: '¥',
+    flag: '🇨🇳',
+    locale: 'zh-CN',
+    decimals: 2
+  },
+  {
+    code: 'AUD',
+    name: 'Australian Dollar',
+    nameLocal: 'Australian Dollar',
+    symbol: 'A$',
+    flag: '🇦🇺',
+    locale: 'en-AU',
+    decimals: 2
+  },
+  {
+    code: 'CAD',
+    name: 'Canadian Dollar',
+    nameLocal: 'Canadian Dollar',
+    symbol: 'C$',
+    flag: '🇨🇦',
+    locale: 'en-CA',
+    decimals: 2
+  },
+  {
+    code: 'CHF',
+    name: 'Swiss Franc',
+    nameLocal: 'Swiss Franc',
+    symbol: 'Fr',
+    flag: '🇨🇭',
+    locale: 'de-CH',
+    decimals: 2
+  },
+  {
+    code: 'SGD',
+    name: 'Singapore Dollar',
+    nameLocal: 'Singapore Dollar',
+    symbol: 'S$',
+    flag: '🇸🇬',
+    locale: 'en-SG',
+    decimals: 2
+  },
+  // Add 160+ more currencies...
 ];
 
-// 통화 코드로 통화 정보 조회
+/**
+ * Get currency information by code
+ * @param code - ISO 4217 currency code
+ * @returns Currency object or undefined
+ */
 export function getCurrency(code: string): Currency | undefined {
   return CURRENCIES.find(c => c.code === code);
 }
 
-// 인기 통화 필터
-export const POPULAR_CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'KRW', 'CNY', 'AUD', 'CAD'];
+/**
+ * Popular currencies for quick access
+ */
+export const POPULAR_CURRENCIES = [
+  'USD', 'EUR', 'GBP', 'JPY', 'KRW',
+  'CNY', 'AUD', 'CAD', 'CHF', 'SGD'
+];
+
+/**
+ * Get display name for currency (supports future i18n)
+ * @param code - Currency code
+ * @param locale - Optional locale (default: 'en')
+ * @returns Display name
+ */
+export function getCurrencyName(code: string, locale: string = 'en'): string {
+  const currency = getCurrency(code);
+  if (!currency) return code;
+
+  // For now, return English name
+  // Future: return currency.nameLocal based on locale
+  return currency.name;
+}
 ```
 
-#### 1.2 환율 API 서비스 구현
+#### 1.2 Exchange Rate API Service Implementation
 
-**파일**: `src/services/exchangeRate.ts`
+**File**: `src/services/exchangeRate.ts`
 
 ```typescript
 interface ExchangeRates {
@@ -65,9 +174,12 @@ interface CachedRates extends ExchangeRates {
 }
 
 const CACHE_KEY = 'exchange_rates_cache';
-const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24시간
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 const API_KEY = process.env.NEXT_PUBLIC_EXCHANGE_API_KEY;
 
+/**
+ * Singleton service for exchange rate operations
+ */
 export class ExchangeRateService {
   private static instance: ExchangeRateService;
 
@@ -80,25 +192,35 @@ export class ExchangeRateService {
     return this.instance;
   }
 
-  // 캐시에서 환율 조회
+  /**
+   * Get cached exchange rates
+   * @returns Cached rates or null if expired/missing
+   */
   private getCachedRates(): CachedRates | null {
     if (typeof window === 'undefined') return null;
 
     const cached = localStorage.getItem(CACHE_KEY);
     if (!cached) return null;
 
-    const data: CachedRates = JSON.parse(cached);
-    const now = Date.now();
+    try {
+      const data: CachedRates = JSON.parse(cached);
+      const now = Date.now();
 
-    // 24시간 이내 캐시면 사용
-    if (now - data.timestamp < CACHE_DURATION) {
-      return data;
+      // Use cache if within 24 hours
+      if (now - data.timestamp < CACHE_DURATION) {
+        return data;
+      }
+    } catch (error) {
+      console.error('Failed to parse cached rates:', error);
     }
 
     return null;
   }
 
-  // 캐시에 환율 저장
+  /**
+   * Save exchange rates to cache
+   * @param rates - Exchange rates to cache
+   */
   private setCachedRates(rates: ExchangeRates): void {
     if (typeof window === 'undefined') return;
 
@@ -107,25 +229,33 @@ export class ExchangeRateService {
       timestamp: Date.now()
     };
 
-    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    } catch (error) {
+      console.error('Failed to cache rates:', error);
+    }
   }
 
-  // API에서 최신 환율 가져오기
+  /**
+   * Fetch latest exchange rates from API
+   * @param baseCurrency - Base currency code (default: USD)
+   * @returns Exchange rates object
+   */
   async fetchLatestRates(baseCurrency: string = 'USD'): Promise<ExchangeRates> {
-    // 캐시 확인
+    // Check cache first
     const cached = this.getCachedRates();
     if (cached && cached.base === baseCurrency) {
       return cached;
     }
 
     try {
-      // ExchangeRate-API 사용
+      // Use ExchangeRate-API
       const response = await fetch(
         `https://v6.exchangerate-api.com/v6/${API_KEY}/latest/${baseCurrency}`
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch exchange rates');
+        throw new Error(`API request failed: ${response.status}`);
       }
 
       const data = await response.json();
@@ -140,14 +270,14 @@ export class ExchangeRateService {
         rates: data.conversion_rates
       };
 
-      // 캐시 저장
+      // Cache the rates
       this.setCachedRates(rates);
 
       return rates;
     } catch (error) {
       console.error('Exchange rate fetch error:', error);
 
-      // 캐시된 데이터라도 있으면 반환 (오래되었어도)
+      // Use stale cache if API fails
       const cached = this.getCachedRates();
       if (cached) {
         console.warn('Using stale cached rates due to API error');
@@ -158,7 +288,13 @@ export class ExchangeRateService {
     }
   }
 
-  // 통화 변환
+  /**
+   * Convert amount from one currency to another
+   * @param amount - Amount to convert
+   * @param from - Source currency code
+   * @param to - Target currency code
+   * @returns Converted amount
+   */
   async convert(
     amount: number,
     from: string,
@@ -176,24 +312,63 @@ export class ExchangeRateService {
     return amount * rate;
   }
 
-  // 캐시 강제 새로고침
+  /**
+   * Force refresh cached rates
+   * @param baseCurrency - Base currency code
+   * @returns Fresh exchange rates
+   */
   async refreshRates(baseCurrency: string = 'USD'): Promise<ExchangeRates> {
     localStorage.removeItem(CACHE_KEY);
     return this.fetchLatestRates(baseCurrency);
+  }
+
+  /**
+   * Get multiple currency conversions at once
+   * @param amount - Amount to convert
+   * @param from - Source currency
+   * @param toCurrencies - Array of target currencies
+   * @returns Map of currency code to converted amount
+   */
+  async convertMultiple(
+    amount: number,
+    from: string,
+    toCurrencies: string[]
+  ): Promise<Map<string, number>> {
+    const rates = await this.fetchLatestRates(from);
+    const results = new Map<string, number>();
+
+    for (const to of toCurrencies) {
+      if (from === to) {
+        results.set(to, amount);
+      } else {
+        const rate = rates.rates[to];
+        if (rate) {
+          results.set(to, amount * rate);
+        }
+      }
+    }
+
+    return results;
   }
 }
 
 export const exchangeRateService = ExchangeRateService.getInstance();
 ```
 
-#### 1.3 API Route 생성
+#### 1.3 API Routes
 
-**파일**: `src/app/api/currency/rates/route.ts`
+**File**: `src/app/api/currency/rates/route.ts`
 
 ```typescript
 import { NextRequest, NextResponse } from 'next/server';
 import { exchangeRateService } from '@/services/exchangeRate';
 
+/**
+ * GET /api/currency/rates
+ * Fetch latest exchange rates
+ * Query params:
+ *   - base: Base currency code (default: USD)
+ */
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const base = searchParams.get('base') || 'USD';
@@ -217,12 +392,20 @@ export async function GET(request: NextRequest) {
 }
 ```
 
-**파일**: `src/app/api/currency/convert/route.ts`
+**File**: `src/app/api/currency/convert/route.ts`
 
 ```typescript
 import { NextRequest, NextResponse } from 'next/server';
 import { exchangeRateService } from '@/services/exchangeRate';
 
+/**
+ * POST /api/currency/convert
+ * Convert amount between currencies
+ * Body:
+ *   - amount: number
+ *   - from: string (currency code)
+ *   - to: string (currency code)
+ */
 export async function POST(request: NextRequest) {
   try {
     const { amount, from, to } = await request.json();
@@ -262,25 +445,27 @@ export async function POST(request: NextRequest) {
 }
 ```
 
-#### 1.4 UI 컴포넌트 개선
+#### 1.4 Currency Selector Component
 
-**파일**: `src/components/calculator/CurrencySelector.tsx` (새 파일)
+**File**: `src/components/calculator/CurrencySelector.tsx`
 
 ```typescript
 'use client';
 
 import React, { useState, useMemo } from 'react';
 import { Check, Search } from 'lucide-react';
-import { CURRENCIES, POPULAR_CURRENCIES, getCurrency } from '@/utils/currencies';
+import { CURRENCIES, POPULAR_CURRENCIES, getCurrency, getCurrencyName } from '@/utils/currencies';
 
 interface CurrencySelectorProps {
   value: string;
   onChange: (code: string) => void;
+  label?: string;
 }
 
 export const CurrencySelector: React.FC<CurrencySelectorProps> = ({
   value,
-  onChange
+  onChange,
+  label = 'Currency'
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -289,7 +474,7 @@ export const CurrencySelector: React.FC<CurrencySelectorProps> = ({
 
   const filteredCurrencies = useMemo(() => {
     if (!search) {
-      // 검색어 없으면 인기 통화 우선 표시
+      // Show popular currencies first
       const popular = CURRENCIES.filter(c => POPULAR_CURRENCIES.includes(c.code));
       const others = CURRENCIES.filter(c => !POPULAR_CURRENCIES.includes(c.code));
       return [...popular, ...others];
@@ -303,69 +488,98 @@ export const CurrencySelector: React.FC<CurrencySelectorProps> = ({
   }, [search]);
 
   return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:border-indigo-500 transition-colors"
-      >
-        <span className="text-2xl">{selectedCurrency?.flag}</span>
-        <span className="font-medium">{selectedCurrency?.code}</span>
-        <span className="text-sm text-gray-500">{selectedCurrency?.symbol}</span>
-      </button>
-
-      {isOpen && (
-        <div className="absolute z-10 mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-96 overflow-hidden">
-          {/* 검색 입력 */}
-          <div className="p-3 border-b border-gray-200 dark:border-gray-700">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search currency..."
-                className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-          </div>
-
-          {/* 통화 목록 */}
-          <div className="overflow-y-auto max-h-80">
-            {filteredCurrencies.map((currency) => (
-              <button
-                key={currency.code}
-                onClick={() => {
-                  onChange(currency.code);
-                  setIsOpen(false);
-                  setSearch('');
-                }}
-                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left"
-              >
-                <span className="text-2xl">{currency.flag}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{currency.code}</span>
-                    <span className="text-sm text-gray-500">{currency.symbol}</span>
-                  </div>
-                  <div className="text-sm text-gray-500 truncate">{currency.name}</div>
-                </div>
-                {currency.code === value && (
-                  <Check className="w-5 h-5 text-indigo-600" />
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
+    <div className="mb-4">
+      {label && (
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+          {label}
+        </label>
       )}
+
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center gap-2 px-4 py-2 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:border-indigo-500 transition-colors"
+        >
+          <span className="text-2xl">{selectedCurrency?.flag}</span>
+          <span className="font-medium">{selectedCurrency?.code}</span>
+          <span className="text-sm text-gray-500">{selectedCurrency?.symbol}</span>
+          <span className="flex-1 text-left text-sm text-gray-600 dark:text-gray-400">
+            {getCurrencyName(value)}
+          </span>
+        </button>
+
+        {isOpen && (
+          <>
+            {/* Backdrop */}
+            <div
+              className="fixed inset-0 z-10"
+              onClick={() => setIsOpen(false)}
+            />
+
+            {/* Dropdown */}
+            <div className="absolute z-20 mt-2 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-96 overflow-hidden">
+              {/* Search input */}
+              <div className="p-3 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Search currency..."
+                    className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    autoFocus
+                  />
+                </div>
+              </div>
+
+              {/* Currency list */}
+              <div className="overflow-y-auto max-h-80">
+                {filteredCurrencies.length === 0 ? (
+                  <div className="p-4 text-center text-gray-500">
+                    No currencies found
+                  </div>
+                ) : (
+                  filteredCurrencies.map((currency) => (
+                    <button
+                      key={currency.code}
+                      onClick={() => {
+                        onChange(currency.code);
+                        setIsOpen(false);
+                        setSearch('');
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left"
+                    >
+                      <span className="text-2xl">{currency.flag}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{currency.code}</span>
+                          <span className="text-sm text-gray-500">{currency.symbol}</span>
+                        </div>
+                        <div className="text-sm text-gray-500 truncate">
+                          {getCurrencyName(currency.code)}
+                        </div>
+                      </div>
+                      {currency.code === value && (
+                        <Check className="w-5 h-5 text-indigo-600 flex-shrink-0" />
+                      )}
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };
 ```
 
-#### 1.5 환율 정보 표시 컴포넌트
+#### 1.5 Exchange Rate Info Component
 
-**파일**: `src/components/calculator/ExchangeRateInfo.tsx` (새 파일)
+**File**: `src/components/calculator/ExchangeRateInfo.tsx`
 
 ```typescript
 'use client';
@@ -374,7 +588,6 @@ import React, { useEffect, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { exchangeRateService } from '@/services/exchangeRate';
 import { formatDistanceToNow } from 'date-fns';
-import { ko } from 'date-fns/locale';
 
 interface ExchangeRateInfoProps {
   baseCurrency: string;
@@ -388,14 +601,17 @@ export const ExchangeRateInfo: React.FC<ExchangeRateInfoProps> = ({
   const [rate, setRate] = useState<number | null>(null);
   const [lastUpdate, setLastUpdate] = useState<string>('');
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const loadRate = async () => {
+    setError(null);
     try {
       const rates = await exchangeRateService.fetchLatestRates(baseCurrency);
       setRate(rates.rates[targetCurrency]);
       setLastUpdate(rates.date);
-    } catch (error) {
-      console.error('Failed to load exchange rate:', error);
+    } catch (err) {
+      console.error('Failed to load exchange rate:', err);
+      setError('Failed to load exchange rate');
     }
   };
 
@@ -417,17 +633,23 @@ export const ExchangeRateInfo: React.FC<ExchangeRateInfoProps> = ({
 
   return (
     <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-      <span>
-        1 {baseCurrency} = {rate.toFixed(4)} {targetCurrency}
-      </span>
-      <span className="text-xs">
-        ({formatDistanceToNow(new Date(lastUpdate), { addSuffix: true, locale: ko })})
-      </span>
+      {error ? (
+        <span className="text-red-500">{error}</span>
+      ) : (
+        <>
+          <span>
+            1 {baseCurrency} = {rate.toFixed(4)} {targetCurrency}
+          </span>
+          <span className="text-xs">
+            (updated {formatDistanceToNow(new Date(lastUpdate), { addSuffix: true })})
+          </span>
+        </>
+      )}
       <button
         onClick={handleRefresh}
         disabled={isRefreshing}
         className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors disabled:opacity-50"
-        title="환율 새로고침"
+        title="Refresh exchange rate"
       >
         <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
       </button>
@@ -436,44 +658,21 @@ export const ExchangeRateInfo: React.FC<ExchangeRateInfoProps> = ({
 };
 ```
 
-### 테스트 계획
-
-```typescript
-// __tests__/services/exchangeRate.test.ts
-describe('ExchangeRateService', () => {
-  it('should fetch and cache exchange rates', async () => {
-    const rates = await exchangeRateService.fetchLatestRates('USD');
-    expect(rates.base).toBe('USD');
-    expect(rates.rates).toHaveProperty('KRW');
-  });
-
-  it('should convert currency correctly', async () => {
-    const converted = await exchangeRateService.convert(100, 'USD', 'KRW');
-    expect(converted).toBeGreaterThan(100);
-  });
-
-  it('should return same amount for same currency', async () => {
-    const converted = await exchangeRateService.convert(100, 'USD', 'USD');
-    expect(converted).toBe(100);
-  });
-});
-```
-
 ---
 
-## Sprint 2: 복리 빈도 & 세금 기능 (Week 3-4)
+## Sprint 2: Compounding Frequency & Tax Features (Week 3-4)
 
-### 2.1 복리 빈도 계산 로직
+### 2.1 Advanced Calculation Logic
 
-**파일**: `src/utils/finance.ts` (업데이트)
+**File**: `src/utils/finance.ts` (Update)
 
 ```typescript
 export type CompoundingFrequency =
-  | 'daily'      // 365일
-  | 'monthly'    // 12개월
-  | 'quarterly'  // 4분기
-  | 'annually'   // 1년
-  | 'continuous'; // 연속 복리
+  | 'daily'      // 365 times per year
+  | 'monthly'    // 12 times per year
+  | 'quarterly'  // 4 times per year
+  | 'annually'   // Once per year
+  | 'continuous'; // Continuous compounding
 
 export interface CalculationParams {
   initialBalance: number;
@@ -485,6 +684,19 @@ export interface CalculationParams {
   inflationRate?: number;
 }
 
+export interface YearlyData {
+  year: number;
+  balance: number;
+  contributions: number;
+  interest: number;
+  afterTaxBalance: number;
+  realValue: number;
+  taxPaid: number;
+}
+
+/**
+ * Get compounding periods per year
+ */
 function getCompoundingPeriods(frequency: CompoundingFrequency): number {
   switch (frequency) {
     case 'daily': return 365;
@@ -495,6 +707,9 @@ function getCompoundingPeriods(frequency: CompoundingFrequency): number {
   }
 }
 
+/**
+ * Calculate compound interest with advanced features
+ */
 export function calculateCompoundInterestAdvanced(
   params: CalculationParams
 ): YearlyData[] {
@@ -516,28 +731,29 @@ export function calculateCompoundInterestAdvanced(
   let totalContributions = initialBalance;
 
   for (let year = 0; year <= years; year++) {
+    // Calculate interest growth
     if (compoundingFrequency === 'continuous') {
-      // 연속 복리: A = Pe^(rt)
+      // Continuous compounding: A = Pe^(rt)
       balance = balance * Math.exp(r);
     } else {
-      // 일반 복리: A = P(1 + r/n)^(nt)
+      // Standard compounding: A = P(1 + r/n)^(nt)
       balance = balance * Math.pow(1 + r / n, n);
     }
 
-    // 월별 납입 추가 (연말 기준)
+    // Add monthly contributions (at end of year)
     const yearlyContribution = monthlyContribution * 12;
     balance += yearlyContribution;
     totalContributions += yearlyContribution;
 
-    // 이자 수익 계산
+    // Calculate interest earned
     const interest = balance - totalContributions;
 
-    // 세후 이자
+    // Apply tax
     const taxAmount = interest * (taxRate / 100);
     const afterTaxInterest = interest - taxAmount;
     const afterTaxBalance = totalContributions + afterTaxInterest;
 
-    // 인플레이션 조정
+    // Adjust for inflation
     const inflationAdjusted = afterTaxBalance / Math.pow(1 + inflationRate / 100, year);
 
     data.push({
@@ -553,300 +769,183 @@ export function calculateCompoundInterestAdvanced(
 
   return data;
 }
-```
 
-### 2.2 세금 UI 컴포넌트
-
-**파일**: `src/components/calculator/TaxSettings.tsx` (새 파일)
-
-```typescript
-'use client';
-
-import React from 'react';
-import { InputControl } from './InputControl';
-
-interface TaxSettingsProps {
-  capitalGainsTax: number;
-  onCapitalGainsTaxChange: (value: number) => void;
-}
-
-const TAX_PRESETS = [
-  { name: '한국', rate: 22, description: '양도소득세' },
-  { name: '미국 (장기)', rate: 15, description: '장기 자본이득세' },
-  { name: '일본', rate: 20.315, description: '양도소득세' },
-  { name: '싱가포르', rate: 0, description: '비과세' },
-];
-
-export const TaxSettings: React.FC<TaxSettingsProps> = ({
-  capitalGainsTax,
-  onCapitalGainsTaxChange
-}) => {
-  return (
-    <div className="space-y-4">
-      <div>
-        <h3 className="text-sm font-medium mb-2">국가별 세율 프리셋</h3>
-        <div className="grid grid-cols-2 gap-2">
-          {TAX_PRESETS.map((preset) => (
-            <button
-              key={preset.name}
-              onClick={() => onCapitalGainsTaxChange(preset.rate)}
-              className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md hover:border-indigo-500 transition-colors text-left"
-            >
-              <div className="font-medium">{preset.name}</div>
-              <div className="text-xs text-gray-500">{preset.rate}% - {preset.description}</div>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <InputControl
-        label="자본 이득세율"
-        value={capitalGainsTax}
-        onChange={onCapitalGainsTaxChange}
-        min={0}
-        max={50}
-        step={0.1}
-        suffix="%"
-        description="투자 수익에 대한 세금"
-      />
-    </div>
-  );
-};
-```
-
----
-
-## Sprint 3-4: 시나리오 비교 & 목표 계산 (Week 5-8)
-
-### 3.1 Zustand Store 확장
-
-**파일**: `src/store/useCalculatorStore.ts` (업데이트)
-
-```typescript
-interface Scenario {
-  id: string;
-  name: string;
-  state: CalculatorState;
-  color: string;
-}
-
-interface CalculatorStoreExtended extends CalculatorState {
-  // 시나리오 관련
-  scenarios: Scenario[];
-  activeScenarioId: string | null;
-  compareMode: boolean;
-
-  addScenario: (name: string) => void;
-  removeScenario: (id: string) => void;
-  updateScenario: (id: string, state: Partial<CalculatorState>) => void;
-  setActiveScenario: (id: string | null) => void;
-  toggleCompareMode: () => void;
-
-  // 목표 기반 계산
-  goalMode: boolean;
-  targetAmount: number;
-  setGoalMode: (enabled: boolean) => void;
-  setTargetAmount: (amount: number) => void;
-  calculateRequiredContribution: () => number;
-}
-
-export const useCalculatorStore = create<CalculatorStoreExtended>((set, get) => ({
-  // ... 기존 상태
-
-  // 시나리오
-  scenarios: [],
-  activeScenarioId: null,
-  compareMode: false,
-
-  addScenario: (name) => {
-    const state = get();
-    const newScenario: Scenario = {
-      id: Date.now().toString(),
-      name,
-      state: {
-        initialBalance: state.initialBalance,
-        monthlyContribution: state.monthlyContribution,
-        years: state.years,
-        interestRate: state.interestRate,
-        // ... 모든 상태 복사
-      },
-      color: CHART_COLORS[get().scenarios.length % CHART_COLORS.length]
-    };
-
-    set({ scenarios: [...state.scenarios, newScenario] });
-  },
-
-  // 목표 모드
-  goalMode: false,
-  targetAmount: 100000000, // 1억원
-
-  calculateRequiredContribution: () => {
-    const { targetAmount, years, interestRate, initialBalance } = get();
-
-    // 필요한 월 납입액 계산 (역산)
-    const r = interestRate / 100 / 12;
-    const n = years * 12;
-
-    // FV = P(1+r)^n + PMT * [((1+r)^n - 1) / r]
-    // 변형: PMT = (FV - P(1+r)^n) * r / ((1+r)^n - 1)
-
-    const futureValueOfInitial = initialBalance * Math.pow(1 + r, n);
-    const remaining = targetAmount - futureValueOfInitial;
-
-    if (remaining <= 0) return 0;
-
-    const pmt = remaining * r / (Math.pow(1 + r, n) - 1);
-
-    return Math.round(pmt);
+/**
+ * Calculate required monthly contribution to reach target
+ */
+export function calculateRequiredContribution(
+  targetAmount: number,
+  initialBalance: number,
+  years: number,
+  interestRate: number,
+  compoundingFrequency: CompoundingFrequency = 'monthly'
+): number {
+  const n = getCompoundingPeriods(compoundingFrequency);
+  if (n === Infinity) {
+    // Use monthly for continuous
+    return calculateRequiredContribution(
+      targetAmount,
+      initialBalance,
+      years,
+      interestRate,
+      'monthly'
+    );
   }
-}));
-```
 
-### 3.2 시나리오 비교 UI
+  const r = interestRate / 100 / n;
+  const totalPeriods = years * n;
 
-**파일**: `src/components/calculator/ScenarioComparison.tsx` (새 파일)
+  // FV = P(1+r)^n + PMT * [((1+r)^n - 1) / r]
+  // Rearrange: PMT = (FV - P(1+r)^n) * r / ((1+r)^n - 1)
 
-```typescript
-'use client';
+  const futureValueOfInitial = initialBalance * Math.pow(1 + r, totalPeriods);
+  const remaining = targetAmount - futureValueOfInitial;
 
-import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { useCalculatorStore } from '@/store/useCalculatorStore';
-import { calculateCompoundInterest } from '@/utils/finance';
+  if (remaining <= 0) return 0;
 
-export const ScenarioComparison: React.FC = () => {
-  const { scenarios, removeScenario } = useCalculatorStore();
+  const periodicPayment = remaining * r / (Math.pow(1 + r, totalPeriods) - 1);
 
-  if (scenarios.length === 0) return null;
-
-  // 각 시나리오의 데이터 계산
-  const allData = scenarios.map(scenario => ({
-    ...scenario,
-    data: calculateCompoundInterest(scenario.state)
-  }));
-
-  // 차트 데이터 병합
-  const chartData = allData[0].data.map((_, index) => {
-    const point: any = { year: index };
-
-    allData.forEach(scenario => {
-      point[scenario.id] = scenario.data[index].balance;
-    });
-
-    return point;
-  });
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">시나리오 비교</h2>
-      </div>
-
-      {/* 차트 */}
-      <ResponsiveContainer width="100%" height={400}>
-        <LineChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="year" label={{ value: '년', position: 'insideBottomRight', offset: -10 }} />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-
-          {scenarios.map(scenario => (
-            <Line
-              key={scenario.id}
-              type="monotone"
-              dataKey={scenario.id}
-              name={scenario.name}
-              stroke={scenario.color}
-              strokeWidth={2}
-              dot={false}
-            />
-          ))}
-        </LineChart>
-      </ResponsiveContainer>
-
-      {/* 시나리오 목록 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {allData.map(({ scenario, data }) => {
-          const finalData = data[data.length - 1];
-
-          return (
-            <div
-              key={scenario.id}
-              className="p-4 border-2 rounded-lg"
-              style={{ borderColor: scenario.color }}
-            >
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-bold">{scenario.name}</h3>
-                <button
-                  onClick={() => removeScenario(scenario.id)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  ×
-                </button>
-              </div>
-
-              <div className="space-y-1 text-sm">
-                <div>초기: {formatCurrency(scenario.state.initialBalance)}</div>
-                <div>월 납입: {formatCurrency(scenario.state.monthlyContribution)}</div>
-                <div>기간: {scenario.state.years}년</div>
-                <div>수익률: {scenario.state.interestRate}%</div>
-                <div className="pt-2 border-t font-bold">
-                  최종: {formatCurrency(finalData.balance)}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
+  // Convert to monthly if needed
+  if (compoundingFrequency === 'monthly') {
+    return Math.round(periodicPayment);
+  } else {
+    // Convert periodic payment to monthly
+    const monthsPerPeriod = 12 / n;
+    return Math.round(periodicPayment / monthsPerPeriod);
+  }
+}
 ```
 
 ---
 
-## 환경 변수 설정
+## Environment Variables
 
-**파일**: `.env.local`
+**File**: `.env.local.example`
 
 ```bash
 # ExchangeRate-API
+# Get free API key from https://www.exchangerate-api.com
 NEXT_PUBLIC_EXCHANGE_API_KEY=your_api_key_here
 
-# 개발 모드에서는 무료 API 사용
-# https://www.exchangerate-api.com 에서 무료 키 발급 가능
+# Optional: Fixer API (backup)
+# NEXT_PUBLIC_FIXER_API_KEY=your_fixer_api_key_here
+```
+
+**File**: `.env.local` (create this, add to .gitignore)
+
+```bash
+NEXT_PUBLIC_EXCHANGE_API_KEY=YOUR_ACTUAL_API_KEY_HERE
 ```
 
 ---
 
-## 배포 체크리스트
+## Testing
 
-### Phase 2.1 배포 전
-- [ ] 모든 통화 데이터 검증
-- [ ] API 키 환경 변수 설정
-- [ ] 환율 캐싱 테스트
-- [ ] 모바일 반응형 테스트
-- [ ] Lighthouse 성능 테스트 (> 90점)
-- [ ] Playwright E2E 테스트 통과
+### Unit Tests
 
-### 성능 목표
-- API 응답 시간: < 200ms (캐시 사용 시)
-- 첫 화면 로딩: < 2초
-- 통화 변환: < 100ms (로컬 계산)
+**File**: `__tests__/services/exchangeRate.test.ts`
+
+```typescript
+import { exchangeRateService } from '@/services/exchangeRate';
+
+describe('ExchangeRateService', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('should fetch and cache exchange rates', async () => {
+    const rates = await exchangeRateService.fetchLatestRates('USD');
+
+    expect(rates.base).toBe('USD');
+    expect(rates.rates).toHaveProperty('KRW');
+    expect(rates.rates).toHaveProperty('EUR');
+  });
+
+  it('should convert currency correctly', async () => {
+    const converted = await exchangeRateService.convert(100, 'USD', 'KRW');
+
+    expect(converted).toBeGreaterThan(100);
+  });
+
+  it('should return same amount for same currency', async () => {
+    const converted = await exchangeRateService.convert(100, 'USD', 'USD');
+
+    expect(converted).toBe(100);
+  });
+
+  it('should use cached rates', async () => {
+    const rates1 = await exchangeRateService.fetchLatestRates('USD');
+    const rates2 = await exchangeRateService.fetchLatestRates('USD');
+
+    expect(rates1.date).toBe(rates2.date);
+  });
+});
+```
+
+**File**: `__tests__/utils/finance.test.ts`
+
+```typescript
+import { calculateRequiredContribution, getCompoundingPeriods } from '@/utils/finance';
+
+describe('Financial Calculations', () => {
+  it('should calculate required contribution', () => {
+    const contribution = calculateRequiredContribution(
+      100000, // target
+      0,      // initial
+      10,     // years
+      5,      // interest rate
+      'monthly'
+    );
+
+    expect(contribution).toBeGreaterThan(0);
+    expect(contribution).toBeLessThan(1000);
+  });
+
+  it('should return 0 if initial balance exceeds target', () => {
+    const contribution = calculateRequiredContribution(
+      100000,
+      150000,
+      10,
+      5,
+      'monthly'
+    );
+
+    expect(contribution).toBe(0);
+  });
+});
+```
 
 ---
 
-## 다음 단계
+## Deployment Checklist
 
-이 구현 계획을 기반으로:
-1. Sprint 1부터 순차적으로 진행
-2. 각 Sprint 완료 후 코드 리뷰 및 테스트
-3. 사용자 피드백 수집 및 반영
-4. Phase 2.2, 2.3으로 진행
+### Phase 2.1 Pre-deployment
+- [ ] All currency data validated
+- [ ] API key environment variable configured
+- [ ] Exchange rate caching tested
+- [ ] Mobile responsive testing
+- [ ] Lighthouse performance test (> 90 score)
+- [ ] Playwright E2E tests passing
+- [ ] Currency conversion accuracy verified
+- [ ] Error handling for API failures tested
+
+### Performance Targets
+- API response time: < 200ms (with cache)
+- First screen load: < 2s
+- Currency conversion: < 100ms (local calculation)
 
 ---
 
-**작성일**: 2024-12-03
-**버전**: 1.0
-**다음 업데이트**: Sprint 1 완료 후
+## Next Steps
+
+Based on this implementation plan:
+1. Start with Sprint 1 sequentially
+2. Code review and testing after each Sprint
+3. Collect and incorporate user feedback
+4. Proceed to Phase 2.2, 2.3
+
+---
+
+**Created**: December 3, 2024
+**Version**: 1.0
+**Next Update**: After Sprint 1 completion
