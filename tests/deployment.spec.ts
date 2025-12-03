@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Vercel Deployment Test', () => {
-  const deploymentUrl = 'https://finance-calculator-git-main-sein-ohs-projects.vercel.app';
+  const deploymentUrl = 'https://finance-calculator-pmecgj5qn-sein-ohs-projects.vercel.app';
 
   test('should load the homepage without 404 error', async ({ page }) => {
     console.log(`Testing deployment at: ${deploymentUrl}`);
@@ -40,14 +40,17 @@ test.describe('Vercel Deployment Test', () => {
     console.log('✓ Calculator components rendered');
   });
 
-  test('should not show 404 error page', async ({ page }) => {
-    await page.goto(deploymentUrl);
+  test('should show calculator title instead of 404 page', async ({ page }) => {
+    await page.goto(deploymentUrl, { waitUntil: 'networkidle' });
 
-    // Check that 404 error is NOT present
-    const bodyText = await page.textContent('body');
-    expect(bodyText).not.toContain('404');
-    expect(bodyText).not.toContain('NOT_FOUND');
+    // Check that the calculator page is showing, not a 404 page
+    const title = await page.locator('h1').first().textContent();
+    expect(title).toContain('Compound Interest Calculator');
 
-    console.log('✓ No 404 error detected');
+    // Check that we're NOT on a 404 error page
+    const has404Title = await page.locator('title:has-text("404")').count();
+    expect(has404Title).toBe(0);
+
+    console.log('✓ Calculator page loaded, not 404 error page');
   });
 });
