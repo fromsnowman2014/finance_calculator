@@ -12,6 +12,7 @@ import { Card, CardHeader } from '@/components/ui/Card';
 import { NumberField } from '@/components/ui/NumberField';
 import { Divider, Segmented, Toggle } from '@/components/ui/controls';
 import { StatTile } from '@/components/ui/StatTile';
+import { MarketCheckStrip } from '@/components/market/MarketCheckStrip';
 import { AXIS_TICK, INITIAL_CHART_SIZE, CHART_COLORS, yearTicks, ChartLegend, TooltipBox, type RechartsTooltipProps } from '@/components/charts/ChartParts';
 
 export function GoalTab() {
@@ -127,6 +128,9 @@ export function GoalTab() {
               suffix="%"
               slider={{ min: 0, max: 15, step: 0.1 }}
             />
+            <div className="-mt-2">
+              <MarketCheckStrip />
+            </div>
             <NumberField
               label={t.goal.currentMonthly}
               value={inputs.currentMonthly}

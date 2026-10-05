@@ -7,8 +7,11 @@ import type { GoalInputs } from '@/lib/finance/goal';
 import type { MarketPresetId } from '@/lib/finance/presets';
 import type { CurrencyCode, Lang } from '@/lib/format';
 
-export const TABS = ['growth', 'trade', 'average', 'goal'] as const;
+export const TABS = ['growth', 'trade', 'average', 'goal', 'market'] as const;
 export type TabId = (typeof TABS)[number];
+
+export const MARKET_PERIODS = ['1y', '3y', '5y', '10y', 'max'] as const;
+export type MarketPeriod = (typeof MARKET_PERIODS)[number];
 
 export interface GrowthState extends GrowthInputs {
   preset: MarketPresetId;
@@ -82,11 +85,13 @@ interface AppState {
   /** True once the visitor picked a language; otherwise we follow the browser. */
   langChosen: boolean;
   currency: CurrencyCode;
+  marketPeriod: MarketPeriod;
   growth: GrowthState;
   trade: TradeState;
   average: AverageCostInputs;
   goal: GoalInputs;
   setTab: (tab: TabId) => void;
+  setMarketPeriod: (period: MarketPeriod) => void;
   setLang: (lang: Lang) => void;
   setCurrency: (currency: CurrencyCode) => void;
   updateGrowth: (patch: Partial<GrowthState>) => void;
@@ -104,11 +109,13 @@ export const useAppStore = create<AppState>()(
       lang: 'en',
       langChosen: false,
       currency: 'USD',
+      marketPeriod: '10y',
       growth: DEFAULT_GROWTH,
       trade: DEFAULT_TRADE,
       average: DEFAULT_AVERAGE,
       goal: DEFAULT_GOAL,
       setTab: (tab) => set({ tab }),
+      setMarketPeriod: (marketPeriod) => set({ marketPeriod }),
       setLang: (lang) => set({ lang, langChosen: true }),
       setCurrency: (currency) => set({ currency }),
       updateGrowth: (patch) => set((s) => ({ growth: { ...s.growth, ...patch } })),
@@ -123,7 +130,9 @@ export const useAppStore = create<AppState>()(
               ? { trade: DEFAULT_TRADE }
               : tab === 'average'
                 ? { average: DEFAULT_AVERAGE }
-                : { goal: DEFAULT_GOAL },
+                : tab === 'goal'
+                  ? { goal: DEFAULT_GOAL }
+                  : {},
         ),
     }),
     {
@@ -135,6 +144,7 @@ export const useAppStore = create<AppState>()(
         lang: s.lang,
         langChosen: s.langChosen,
         currency: s.currency,
+        marketPeriod: s.marketPeriod,
         growth: s.growth,
         trade: s.trade,
         average: s.average,
@@ -146,6 +156,7 @@ export const useAppStore = create<AppState>()(
         return {
           ...current,
           ...p,
+          marketPeriod: (MARKET_PERIODS as readonly string[]).includes(p.marketPeriod ?? '') ? p.marketPeriod! : current.marketPeriod,
           growth: { ...current.growth, ...p.growth },
           trade: { ...current.trade, ...p.trade },
           average: { ...current.average, ...p.average },

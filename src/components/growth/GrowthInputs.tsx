@@ -11,6 +11,7 @@ import { cn } from '@/lib/cn';
 import { Card, CardHeader, SectionLabel } from '@/components/ui/Card';
 import { NumberField } from '@/components/ui/NumberField';
 import { ChipGroup, Divider, Toggle } from '@/components/ui/controls';
+import { MarketCheckStrip } from '@/components/market/MarketCheckStrip';
 
 export function GrowthInputs() {
   const t = useT();
@@ -61,6 +62,7 @@ export function GrowthInputs() {
         {t.growth.presetSummary(f.pct(expectedTotalReturn(g)), f.pct(g.volatility, 0))}
         <span className="block">{t.growth.presetNote}</span>
       </p>
+      <MarketCheckStrip />
 
       <Divider />
 

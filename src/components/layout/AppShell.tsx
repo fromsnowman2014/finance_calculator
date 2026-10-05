@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from 'react';
 import { useTheme } from 'next-themes';
-import { Calculator, Check, Layers, Moon, Share2, Sun, Target, TrendingUp, Wallet } from 'lucide-react';
+import { Calculator, Check, Gauge, Layers, Moon, Share2, Sun, Target, TrendingUp, Wallet } from 'lucide-react';
 import { useAppStore, TABS, type TabId } from '@/store/useAppStore';
 import { useLang, useT } from '@/i18n';
 import { CURRENCIES, isCurrencyCode } from '@/lib/format';
@@ -12,12 +12,14 @@ import { GrowthTab } from '@/components/growth/GrowthTab';
 import { TradeTab } from '@/components/trade/TradeTab';
 import { AverageTab } from '@/components/average/AverageTab';
 import { GoalTab } from '@/components/goal/GoalTab';
+import { MarketTab } from '@/components/market/MarketTab';
 
 const TAB_ICONS: Record<TabId, ReactNode> = {
   growth: <TrendingUp size={16} aria-hidden />,
   trade: <Wallet size={16} aria-hidden />,
   average: <Layers size={16} aria-hidden />,
   goal: <Target size={16} aria-hidden />,
+  market: <Gauge size={16} aria-hidden />,
 };
 
 /** Restores saved inputs, then applies any shared-link parameters on top. */
@@ -151,6 +153,7 @@ function TabNav() {
             onClick={() => setTab(id)}
             className={cn(
               'flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors sm:px-4',
+              id === 'market' && 'col-span-2 sm:col-span-1',
               tab === id ? 'bg-accent text-white shadow-sm' : 'text-ink-2 hover:bg-surface-2 hover:text-ink',
             )}
           >
@@ -186,6 +189,7 @@ export function AppShell() {
         {tab === 'trade' && <TradeTab />}
         {tab === 'average' && <AverageTab />}
         {tab === 'goal' && <GoalTab />}
+        {tab === 'market' && <MarketTab />}
       </div>
       <footer className="mt-12 border-t border-line pt-6 text-xs leading-relaxed text-ink-3">{t.app.disclaimer}</footer>
     </div>

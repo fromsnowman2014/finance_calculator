@@ -8,7 +8,7 @@ test.describe('Stock return calculator', () => {
     const response = await page.goto(baseURL, { waitUntil: 'networkidle' });
     expect(response?.status()).toBe(200);
     await expect(page.locator('h1')).toHaveText('Stock investment return calculator');
-    await expect(page.getByRole('tab')).toHaveCount(4);
+    await expect(page.getByRole('tab')).toHaveCount(5);
   });
 
   test('growth simulator reacts to inputs and draws charts', async ({ page }) => {
@@ -35,6 +35,24 @@ test.describe('Stock return calculator', () => {
     await expect(page.getByTestId('planner-result')).toContainText('15 shares');
     await page.getByRole('tab', { name: 'Goal planner' }).click();
     await expect(page.getByTestId('required-monthly')).toContainText('/mo');
+  });
+
+  test('market check shows live indicators and feeds the simulator', async ({ page }) => {
+    await page.goto(baseURL, { waitUntil: 'networkidle' });
+    await expect(page.getByTestId('market-strip')).toBeVisible();
+    await page.getByRole('tab', { name: 'Market check' }).click();
+    await expect(page.getByTestId('market-stance')).toBeVisible({ timeout: 30_000 });
+    for (const key of ['buffett', 'yieldCurve', 'creditSpread', 'vix']) {
+      await expect(page.getByTestId(`indicator-${key}`)).toBeVisible();
+    }
+    await page.getByRole('radio', { name: 'Max', exact: true }).click();
+    await expect(page.getByText('Higher than', { exact: false }).first()).toBeVisible();
+
+    const apply = page.getByRole('button', { name: 'Apply to simulator' });
+    if (await apply.isVisible()) {
+      await apply.click();
+      await expect(page.getByRole('tab', { name: 'Growth simulator' })).toHaveAttribute('aria-selected', 'true');
+    }
   });
 
   test('switches to Korean', async ({ page }) => {

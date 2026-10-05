@@ -18,6 +18,7 @@ export const en = {
     trade: 'Trade return',
     average: 'Average cost',
     goal: 'Goal planner',
+    market: 'Market check',
   },
   common: {
     year: 'Year',
@@ -262,6 +263,136 @@ export const en = {
     delayIn: (years: string) => `In ${years} ${years === '1' ? 'year' : 'years'}`,
     delayMonthly: 'Monthly needed',
     delayExtra: 'vs. starting now',
+  },
+  market: {
+    title: 'Market check',
+    subtitle:
+      'Seven official, free indicators that professionals watch — to help you decide how optimistic your calculator assumptions should be. They describe today; they can’t time the market.',
+    periods: { '1y': '1Y', '3y': '3Y', '5y': '5Y', '10y': '10Y', max: 'Max' },
+    periodLabel: 'Chart period',
+    dataAsOf: (date: string) => `Data as of ${date}`,
+    loading: 'Loading market data…',
+    error: 'Market data could not be loaded right now.',
+    retry: 'Try again',
+    howToUseTitle: 'How to use this page',
+    howToUse: [
+      'Start with the verdict and the four layers below it.',
+      'Open any amber or red card to see why it is flashing.',
+      'Before you commit, test a more cautious return in the simulator.',
+    ],
+    stances: {
+      calm: {
+        title: 'Calm — no major warning signs',
+        body: 'Credit, jobs and fear gauges look normal and stocks aren’t priced far above history. Even calm markets have occasional 10–20% drops.',
+      },
+      mixed: {
+        title: 'Mixed signals — stay balanced',
+        body: 'A few indicators are flashing caution, but nothing points to serious stress. Keep investing as planned and avoid overly rosy assumptions.',
+      },
+      expensive: {
+        title: 'Calm but expensive — keep expectations modest',
+        body: 'There is no stress in credit, jobs or fear gauges, but stocks are priced far above their history. From levels like this, the following decade’s returns have tended to be below average.',
+      },
+      fearful: {
+        title: 'Fear is high — don’t panic',
+        body: 'Markets are swinging hard. Fear spikes usually fade, and historically investors who kept buying through them did better than those who sold.',
+      },
+      defensive: {
+        title: 'Stress is building — be careful',
+        body: 'Credit or recession signals are flashing. Keep an emergency fund, avoid borrowing to invest, and plan with lower returns and bigger swings.',
+      },
+    },
+    verdict: 'Overall',
+    guideTitle: 'How optimistic should your assumptions be?',
+    levels: { optimistic: 'Preset is fine', modest: 'Be modest', cautious: 'Be cautious' },
+    scenarioCalm: 'The preset assumptions look reasonable. Still check the bad case in the simulator’s Market risk chart.',
+    scenarioModest: (from: string, to: string) => `Test a modest case: price growth ${from} → ${to}`,
+    scenarioCautious: (from: string, to: string, vol: string) =>
+      `Test a cautious case: price growth ${from} → ${to}, volatility ${vol}`,
+    apply: 'Apply to simulator',
+    always:
+      'Signals describe conditions, not timing. Investing regularly for the long run has historically beaten jumping in and out of the market.',
+    layers: {
+      valuation: { name: 'Valuation', desc: 'How expensive stocks are — drives long-term returns' },
+      recession: { name: 'Recession signals', desc: 'Is the economy turning? — behind most big crashes' },
+      credit: { name: 'Credit & money', desc: 'Is money flowing? — often cracks before stocks do' },
+      fear: { name: 'Fear gauge', desc: 'How nervous investors are — short-term swings' },
+    },
+    status: { calm: 'Normal', watch: 'Watch', warning: 'Warning' },
+    noData: 'No data',
+    percentile: (pct: string, year: string) => `Higher than ${pct} of readings since ${year}`,
+    asOf: (date: string) => `as of ${date}`,
+    recessionNote: 'Gray bands: US recessions',
+    extended: 'Showing a longer window so there are enough data points.',
+    howToRead: 'How to read it',
+    source: 'Source',
+    zone: { watch: 'Watch', warning: 'Warning' },
+    pp: ' pp',
+    indicators: {
+      buffett: {
+        name: 'Stock market value ÷ GDP',
+        nickname: 'Buffett indicator',
+        short: 'Value of US companies’ shares compared with the size of the economy (Fed data, quarterly).',
+        howTo:
+          'A price-level gauge, not a timing tool — it can stay high for years. But when it started from very high levels, the next 10 years’ returns were usually below average. Median since 1950: about 72%.',
+        readings: { calm: 'Normal', watch: 'Above average', warning: 'Very expensive' },
+      },
+      yieldCurve: {
+        name: 'Yield curve (10-year − 3-month)',
+        nickname: 'Recession early warning',
+        short: 'Long-term minus short-term US Treasury rates.',
+        howTo:
+          'Normally positive. When it turned negative (inverted), a recession usually followed within 6–18 months — and the danger often arrived just after it turned positive again.',
+        readings: { calm: 'Normal', watch: 'Flat', warning: 'Inverted', reSteepening: 'Turning up after inversion' },
+      },
+      sahm: {
+        name: 'Sahm rule',
+        nickname: 'Unemployment alarm',
+        short: 'How far the 3-month average unemployment rate has risen above its low of the past year.',
+        howTo:
+          '0.5 or more has marked the start of almost every US recession since 1970, though it gave a false alarm in mid-2024. Below 0.3 is normal.',
+        readings: { calm: 'Jobs steady', watch: 'Unemployment rising', warning: 'Recession signal' },
+      },
+      creditSpread: {
+        name: 'Corporate credit spread',
+        nickname: 'Moody’s Baa − 10-year Treasury',
+        short: 'Extra interest companies must pay compared with the US government.',
+        howTo:
+          'When lenders get nervous, this gap widens — credit markets often crack before stocks. Below 2.5% is calm; above 3.5% has come with recessions and crises (2008 peak 6.2%, 2020 peak 4.3%).',
+        readings: { calm: 'Calm', watch: 'Widening', warning: 'Credit stress' },
+      },
+      nfci: {
+        name: 'Financial conditions (NFCI)',
+        nickname: 'Chicago Fed',
+        short: '105 measures of credit, risk and leverage combined into one weekly number.',
+        howTo:
+          'Below zero means money is easier to get than average. Readings above about −0.2 are tighter than usual for the last 30 years; above 0.3 has only happened in real stress (2020, 2008).',
+        readings: { calm: 'Easy money', watch: 'Tightening', warning: 'Tight' },
+      },
+      vix: {
+        name: 'VIX',
+        nickname: 'Fear index',
+        short: 'Expected S&P 500 swings over the next 30 days, from option prices.',
+        howTo:
+          'Below 20 is calm, 20–30 nervous, above 30 fearful. Spikes usually fade within weeks. Very low readings (around 12) can mean complacency.',
+        readings: { calm: 'Calm', watch: 'Nervous', warning: 'Fear', complacent: 'Very calm — complacency?' },
+      },
+      vixTerm: {
+        name: 'VIX term structure',
+        nickname: 'VIX ÷ 3-month VIX',
+        short: 'Fear about the next month compared with fear about the next three months.',
+        howTo:
+          'Normally below 1. Above 1 means panic right now — it happened on only about 10% of days since 2007. Buying the moment it crossed 1 was usually early; better entries came as it fell back below 1.',
+        readings: { calm: 'Normal', watch: 'Stressed', warning: 'Panic' },
+      },
+    },
+    footnote:
+      'Data: FRED, Federal Reserve Bank of St. Louis — from the Federal Reserve Board and BEA, Moody’s, Cboe, the Federal Reserve Bank of Chicago and Claudia Sahm. Refreshed about twice a day. High-yield bond spreads and S&P 500 index levels on FRED can’t be republished without permission, so they are not shown.',
+    strip: {
+      title: 'Market check',
+      loading: 'Checking market conditions…',
+      link: 'See indicators',
+    },
   },
 };
 

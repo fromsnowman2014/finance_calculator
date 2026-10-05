@@ -31,6 +31,15 @@
   --band-outer: #dbe9fb;
   --band-inner: #9ec5f4;
   --median: #1c5cab;
+
+  /* Status colors (fixed meaning: normal / watch / warning). */
+  --status-good: #0ca30c;
+  --status-good-ink: #087a08;
+  --status-warn: #fab219;
+  --status-warn-ink: #a86d00;
+  --status-bad: #d03b3b;
+  --status-bad-ink: #b42f2f;
+  --chart-recession: rgba(137, 135, 129, 0.16);
 }
 
 .dark {
@@ -60,6 +69,11 @@
   --band-outer: #172f4d;
   --band-inner: #22528c;
   --median: #86b6ef;
+
+  --status-good-ink: #3ccf5e;
+  --status-warn-ink: #fab219;
+  --status-bad-ink: #f27474;
+  --chart-recession: rgba(195, 194, 183, 0.12);
 }
 
 /* Korean market convention: red for gains, blue for losses. */
