@@ -60,7 +60,7 @@ interface DividendPoint {
   tax: number;
 }
 
-const CHART_MARGIN = { top: 12, right: 8, bottom: 0, left: 4 };
+const CHART_MARGIN = { top: 12, right: 20, bottom: 0, left: 4 };
 
 export function GrowthCharts({
   inputs,

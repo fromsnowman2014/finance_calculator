@@ -195,7 +195,7 @@ export function GoalTab() {
           />
           <div className="h-[280px] w-full sm:h-[340px]">
             <ResponsiveContainer width="100%" height="100%" initialDimension={INITIAL_CHART_SIZE}>
-              <LineChart data={r.path} margin={{ top: 12, right: 8, bottom: 0, left: 4 }}>
+              <LineChart data={r.path} margin={{ top: 12, right: 20, bottom: 0, left: 4 }}>
                 <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
                 <XAxis
                   dataKey="year"
