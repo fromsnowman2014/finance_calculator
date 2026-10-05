@@ -1,56 +1,51 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Vercel Deployment Test', () => {
-  const deploymentUrl = 'https://finance-calculator-pmecgj5qn-sein-ohs-projects.vercel.app';
+// Run against any deployment: BASE_URL=https://... npx playwright test
+const baseURL = process.env.BASE_URL ?? 'https://finance-calculator-sein-ohs-projects.vercel.app';
 
-  test('should load the homepage without 404 error', async ({ page }) => {
-    console.log(`Testing deployment at: ${deploymentUrl}`);
-
-    // Navigate to the deployment URL
-    const response = await page.goto(deploymentUrl, {
-      waitUntil: 'networkidle',
-      timeout: 30000
-    });
-
-    // Check response status
-    console.log(`Response status: ${response?.status()}`);
+test.describe('Stock return calculator', () => {
+  test('loads the homepage', async ({ page }) => {
+    const response = await page.goto(baseURL, { waitUntil: 'networkidle' });
     expect(response?.status()).toBe(200);
-
-    // Take screenshot for debugging
-    await page.screenshot({ path: 'deployment-test.png', fullPage: true });
-
-    // Check if the page contains the expected content
-    await expect(page.locator('h1')).toContainText('Compound Interest Calculator');
-
-    console.log('✓ Homepage loaded successfully');
+    await expect(page.locator('h1')).toHaveText('Stock investment return calculator');
+    await expect(page.getByRole('tab')).toHaveCount(4);
   });
 
-  test('should render calculator components', async ({ page }) => {
-    await page.goto(deploymentUrl, { waitUntil: 'networkidle' });
+  test('growth simulator reacts to inputs and draws charts', async ({ page }) => {
+    await page.goto(baseURL, { waitUntil: 'networkidle' });
+    const finalValue = page.getByTestId('final-value');
+    const before = await finalValue.textContent();
 
-    // Check for calculator elements
-    const hasInputs = await page.locator('input[type="number"]').count();
-    console.log(`Found ${hasInputs} number inputs`);
-    expect(hasInputs).toBeGreaterThan(0);
+    const monthly = page.getByLabel('Monthly investment', { exact: true }).first();
+    await monthly.fill('1500');
+    await monthly.blur();
+    await expect(finalValue).not.toHaveText(before ?? '');
 
-    const hasSliders = await page.locator('input[type="range"]').count();
-    console.log(`Found ${hasSliders} range sliders`);
-    expect(hasSliders).toBeGreaterThan(0);
-
-    console.log('✓ Calculator components rendered');
+    await expect(page.locator('.recharts-surface').first()).toBeVisible();
+    await page.getByRole('radio', { name: 'Market risk' }).click();
+    await expect(page.getByText('Chance of profit')).toBeVisible();
   });
 
-  test('should show calculator title instead of 404 page', async ({ page }) => {
-    await page.goto(deploymentUrl, { waitUntil: 'networkidle' });
+  test('every calculator tab renders its result', async ({ page }) => {
+    await page.goto(baseURL, { waitUntil: 'networkidle' });
+    await page.getByRole('tab', { name: 'Trade return' }).click();
+    await expect(page.getByTestId('net-profit')).toContainText('$');
+    await page.getByRole('tab', { name: 'Average cost' }).click();
+    await expect(page.getByTestId('average-price')).toHaveText('$99.29');
+    await expect(page.getByTestId('planner-result')).toContainText('15 shares');
+    await page.getByRole('tab', { name: 'Goal planner' }).click();
+    await expect(page.getByTestId('required-monthly')).toContainText('/mo');
+  });
 
-    // Check that the calculator page is showing, not a 404 page
-    const title = await page.locator('h1').first().textContent();
-    expect(title).toContain('Compound Interest Calculator');
+  test('switches to Korean', async ({ page }) => {
+    await page.goto(baseURL, { waitUntil: 'networkidle' });
+    await page.getByRole('radio', { name: '한국어' }).click();
+    await expect(page.locator('h1')).toHaveText('주식 투자 수익률 계산기');
+  });
 
-    // Check that we're NOT on a 404 error page
-    const has404Title = await page.locator('title:has-text("404")').count();
-    expect(has404Title).toBe(0);
-
-    console.log('✓ Calculator page loaded, not 404 error page');
+  test('opens links shared from the old compound interest calculator', async ({ page }) => {
+    await page.goto(`${baseURL}/?p=5000&c=200&y=30&r=7`, { waitUntil: 'networkidle' });
+    await expect(page.getByLabel('Monthly investment', { exact: true }).first()).toHaveValue('200');
+    await expect(page.getByText('Portfolio value in 30 years')).toBeVisible();
   });
 });

@@ -1,26 +1,127 @@
 @import "tailwindcss";
 
+/* next-themes toggles a `dark` class on <html>. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+  --page: #f6f6f3;
+  --surface: #ffffff;
+  --surface-2: #f3f3ef;
+  --line: #e6e5df;
+  --line-strong: #cfcdc4;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --ink-3: #75736d;
+  --accent: #2a78d6;
+  --accent-ink: #1c5cab;
+  --accent-soft: #e9f2fc;
+  --gain: #0d7a2a;
+  --gain-soft: #e6f4ea;
+  --loss: #c2312f;
+  --loss-soft: #fbebea;
+
+  /* Chart palette (validated categorical order + blue sequential ramp). */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-neutral: #898781;
+  --chart-grid: #e8e7e1;
+  --chart-axis: #75736d;
+  --band-outer: #dbe9fb;
+  --band-inner: #9ec5f4;
+  --median: #1c5cab;
+}
+
+.dark {
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface: #1a1a19;
+  --surface-2: #232321;
+  --line: #2e2e2b;
+  --line-strong: #45453f;
+  --ink: #ffffff;
+  --ink-2: #c3c2b7;
+  --ink-3: #9a988f;
+  --accent: #3987e5;
+  --accent-ink: #86b6ef;
+  --accent-soft: rgba(57, 135, 229, 0.16);
+  --gain: #3ccf5e;
+  --gain-soft: rgba(12, 163, 12, 0.16);
+  --loss: #f27474;
+  --loss-soft: rgba(208, 59, 59, 0.18);
+
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-neutral: #898781;
+  --chart-grid: #2c2c2a;
+  --chart-axis: #9a988f;
+  --band-outer: #172f4d;
+  --band-inner: #22528c;
+  --median: #86b6ef;
+}
+
+/* Korean market convention: red for gains, blue for losses. */
+:root:lang(ko) {
+  --gain: #cf2a3b;
+  --gain-soft: #fdecee;
+  --loss: #1f62c9;
+  --loss-soft: #e8f0fc;
+}
+
+.dark:lang(ko) {
+  --gain: #ff6b78;
+  --gain-soft: rgba(240, 70, 85, 0.18);
+  --loss: #64a2f2;
+  --loss-soft: rgba(57, 135, 229, 0.18);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-gain: var(--gain);
+  --color-gain-soft: var(--gain-soft);
+  --color-loss: var(--loss);
+  --color-loss-soft: var(--loss-soft);
+  --font-sans: var(--font-geist-sans), "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+input[type="range"] {
+  accent-color: var(--accent);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+/* Recharts focus outline on click is noisy; keyboard focus stays visible on controls. */
+.recharts-wrapper *:focus {
+  outline: none;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
